@@ -1,0 +1,14 @@
+{application, 'erlz', [
+    {description, "Set of helpers functions for more convenient functional programming"},
+    {vsn, "0.1.0"},
+    {registered, []},
+    {applications, [
+        kernel,
+        stdlib
+    ]},
+    {env,[]},
+    {modules, []},
+    {contributors, []},
+    {licenses, []},
+    {links, []}
+]}.

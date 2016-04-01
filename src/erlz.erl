@@ -3,7 +3,8 @@
 %% API exports
 
 -export([
-    partial/2
+    partial/1
+    ,partial/2
     ,curried/1
     ,do/1
     ,do/2
@@ -26,6 +27,13 @@
     ,maybe_foldlM/3
     ,maybe_foldrM/3
 ]).
+
+partial(Fns) ->
+    lists:map(
+        fun({Fn, Args}) ->
+            erlz_partial:partial(Fn, Args)
+        end,
+        Fns).
 
 partial(Fn, Args) ->
     erlz_partial:partial(Fn, Args).

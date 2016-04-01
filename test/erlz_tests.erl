@@ -15,7 +15,17 @@ partial_test() ->
     end,
     PFn = erlz:partial(Fn, [1, '_', '_', 4, 5]),
     {arity, 2} = erlang:fun_info(PFn, arity),
-    15 = PFn(2, 3).
+    15 = PFn(2, 3),
+
+    PFns = erlz:partial([
+            {Fn, [1, '_', '_', 4, 5]},
+            {Fn, [1, '_', '_', 4, 5]}
+        ]),
+    lists:foreach(
+        fun(InFn) ->
+            15 = InFn(2, 3)
+        end,
+        PFns).
 
 carried_test() ->
     Fn = fun(A, B, C, D) ->

@@ -8,7 +8,7 @@
     ]},
     {env,[]},
     {modules, []},
-    {contributors, []},
-    {licenses, []},
-    {links, []}
+    {maintainers, ["Alexander Verbitsky"]},
+    {licenses, ["MIT"]},
+    {links, [{"GitHub", "https://github.com/habibutsu/erlz"}]}
 ]}.

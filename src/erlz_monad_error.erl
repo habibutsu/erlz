@@ -15,7 +15,7 @@ return(V) ->
     {error, Reason};
 '>>='({ok, V}, Fn) ->
     Fn(V);
-'>>='(Fn, V) ->
+'>>='(V, Fn) ->
     throw({bad_match, "could not prepare value", V, "for", Fn}).
 
 %% instance Functor

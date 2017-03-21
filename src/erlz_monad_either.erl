@@ -15,7 +15,7 @@ return(V) -> {right, V}.
 
 '>>='({left, V}, _Fn) -> {left, V};
 '>>='({right, V}, Fn) -> Fn(V);
-'>>='(Fn, V) -> throw({bad_match, "could not prepare value", V, "for", Fn}).
+'>>='(V, Fn) -> throw({bad_match, "could not prepare value", V, "for", Fn}).
 
 % instance Functor (Either a) where
 %     fmap _ (Left x) = Left x

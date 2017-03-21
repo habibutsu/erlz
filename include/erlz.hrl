@@ -1,0 +1,2 @@
+-type maybe() :: {just, any()} | nothing.
+-type fun_maybe() :: fun((any()) -> maybe()).

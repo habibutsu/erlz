@@ -1,5 +1,7 @@
 -module('erlz').
 
+-include("erlz.hrl").
+
 %% API exports
 
 -export([
@@ -74,6 +76,7 @@ i_fbind(V, Fn) ->
     Fn(V).
 
 
+-spec i_list_traverse(module(), function(), list()) -> any().
 i_list_traverse(Monad, Fn, Items) when is_list(Items) ->
     lists:foldl(
         fun(X, Acc) ->
@@ -86,6 +89,8 @@ i_list_traverse(Monad, Fn, Items) when is_list(Items) ->
         end,
         Monad:return([]), Items).
 
+
+-spec i_foldM(atom(), function(), function(), any(), list()) -> any().
 i_foldM(Monad, FoldFn, Fn, InAcc, Xs) ->
     FoldFn(
         fun(X, MAcc) ->
@@ -146,20 +151,31 @@ error_foldrM(Fn, Acc, Xs) ->
 %% Maybe (just for fun :)
 %%====================================================================
 
+-spec maybe_do([fun_maybe()]) -> maybe().
 maybe_do([Fn|Fns]) ->
     i_maybe_do(Fn(), Fns).
 
+
+-spec maybe_do(any(), [fun_maybe()]) -> maybe().
 maybe_do(InitValue, Fns) ->
     i_maybe_do(erlz_monad_maybe:return(InitValue), Fns).
 
+
+-spec i_maybe_do(maybe(), [fun_maybe()]) -> maybe().
 i_maybe_do(InitValue, Fns) ->
     i_do(InitValue, fun erlz_monad_maybe:'>>='/2, Fns).
 
+
+-spec maybe_traverse(fun_maybe(), list()) -> maybe().
 maybe_traverse(Fn, Items) when is_list(Items) ->
     i_list_traverse(erlz_monad_maybe, Fn, Items).
 
+
+-spec maybe_foldlM(function(), any(), [maybe()]) -> maybe().
 maybe_foldlM(Fn, Acc, Xs) ->
     i_foldM(erlz_monad_maybe, fun lists:foldl/3, Fn, Acc, Xs).
 
+
+-spec maybe_foldrM(function(), any(), [maybe()]) -> maybe().
 maybe_foldrM(Fn, Acc, Xs) ->
     i_foldM(erlz_monad_error, fun lists:foldr/3, Fn, Acc, Xs).

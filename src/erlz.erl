@@ -28,6 +28,8 @@
     ,maybe_foldrM/3
 ]).
 
+
+-spec partial([{function(), list()}]) -> [function()].
 partial(Fns) ->
     lists:map(
         fun({Fn, Args}) ->
@@ -35,19 +37,28 @@ partial(Fns) ->
         end,
         Fns).
 
+
+-spec partial(function(), list()) -> function().
 partial(Fn, Args) ->
     erlz_partial:partial(Fn, Args).
 
+
+-spec curried(function()) -> function().
 curried(Fn) ->
     erlz_curried:curried(Fn).
 
+
+-spec do([function()]) -> any().
 do(Pipeline) ->
     do(undefined, Pipeline).
 
+
+-spec do(any(), [function()]) -> any().
 do(InitValue, Pipeline) ->
     i_do(InitValue, fun i_fbind/2, Pipeline).
 
 
+-spec i_do(any(), function(), [function()]) -> any().
 i_do(undefined, BindFn, [F|Fns]) ->
     i_do(F(), BindFn, Fns);
 i_do(InitValue, BindFn, Fns) ->
@@ -57,8 +68,11 @@ i_do(InitValue, BindFn, Fns) ->
         end,
         InitValue, Fns).
 
+
+-spec i_fbind(any(), function()) -> any().
 i_fbind(V, Fn) ->
     Fn(V).
+
 
 i_list_traverse(Monad, Fn, Items) when is_list(Items) ->
     lists:foldl(

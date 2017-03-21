@@ -32,7 +32,12 @@ carried_test() ->
         A + B + C + D
     end,
     CFn = erlz:curried(Fn),
-    10 = (((CFn(1))(2))(3))(4).
+    10 = (((CFn(1))(2))(3))(4),
+    F1 = CFn(1),
+    F2 = F1(2),
+    F3 = F2(3),
+    10 = F3(4),
+    ok.
 
 do_test() ->
     <<"16.0">> = erlz:do(0, [

@@ -1,26 +1,22 @@
--module('erlz_monad_error').
+-module(erlz_monad_error).
 
--compile([export_all]).
+%% Implementation of Monad and Functor for Error
 
-%%====================================================================
-%% Error (special case for Either)
-%%====================================================================
+-include("erlz.hrl").
 
-%% instance Monad
+-export([return/1, '>>='/2, fmap/2]).
 
-return(V) ->
-    {ok, V}.
 
-'>>='({error, Reason}, _) ->
-    {error, Reason};
-'>>='({ok, V}, Fn) ->
-    Fn(V);
-'>>='(Fn, V) ->
-    throw({bad_match, "could not prepare value", V, "for", Fn}).
+-spec return(any()) -> ok_or_error().
+return(V) -> {ok, V}.
 
-%% instance Functor
 
-fmap(_Fn, {error, V}) ->
-    {error, V};
-fmap(Fn, {ok, V}) ->
-    {ok, Fn(V)}.
+-spec '>>='(ok_or_error(), fun_ok_or_error()) -> ok_or_error().
+'>>='({ok, V}, Fn) -> Fn(V);
+'>>='({error, Reason}, _) -> {error, Reason};
+'>>='(V, _Fn) -> throw({bad_value, V}).
+
+
+-spec fmap(function(), ok_or_error()) -> ok_or_error().
+fmap(Fn, {ok, V}) -> {ok, Fn(V)};
+fmap(_Fn, {error, V}) -> {error, V}.

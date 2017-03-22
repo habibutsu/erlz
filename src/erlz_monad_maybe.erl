@@ -1,27 +1,38 @@
--module('erlz_monad_maybe').
+-module(erlz_monad_maybe).
 
--compile([export_all]).
+%% Implementation of Monad and Functor for Maybe
+%%
+%% analogue to Haskell:
+%%
+%% instance  Monad Maybe  where
+%%     (Just x) >>= k      = k x
+%%     Nothing  >>= _      = Nothing
+%%     return              = Just
+%%     fail _              = Nothing
+%%
+%% instance  Functor Maybe  where
+%%     fmap _ Nothing       = Nothing
+%%     fmap f (Just a)      = Just (f a)
 
-%%====================================================================
-%% Maybe (just for fun :)
-%%====================================================================
+-include("erlz.hrl").
 
-% instance  Monad Maybe  where
-%     (Just x) >>= k      = k x
-%     Nothing  >>= _      = Nothing
-%     return              = Just
-%     fail _              = Nothing
+-export([return/1, fail/1, '>>='/2, fmap/2]).
 
+
+-spec return(any()) -> maybe().
 return(V) -> {just, V}.
 
+
+-spec fail(any()) -> maybe().
 fail(_V) -> nothing.
 
+
+-spec '>>='(maybe(), fun_maybe()) -> maybe().
 '>>='({just, V}, Fn)    -> Fn(V);
 '>>='(nothing, _)       -> nothing;
-'>>='(Fn, V)            -> throw({bad_match, "could not prepare value", V, "for", Fn}).
+'>>='(V, _Fn)            -> throw({bad_value, V}).
 
-% instance  Functor Maybe  where
-%     fmap _ Nothing       = Nothing
-%     fmap f (Just a)      = Just (f a)
+
+-spec fmap(function(), maybe()) -> maybe().
 fmap(_Fn, nothing)  -> nothing;
 fmap(Fn, {just, V}) -> {just, Fn(V)}.

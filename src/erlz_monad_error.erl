@@ -1,15 +1,15 @@
--module('erlz_monad_error').
+-module(erlz_monad_error).
 
--compile([export_all]).
+%% Implementation of Monad and Functor for Error
 
-%%====================================================================
-%% Error (special case for Either)
-%%====================================================================
+-include("erlz.hrl").
 
-%% instance Monad
+-export([return/1, '>>='/2, fmap/2]).
+
 
 return(V) ->
     {ok, V}.
+
 
 '>>='({error, Reason}, _) ->
     {error, Reason};
@@ -18,7 +18,6 @@ return(V) ->
 '>>='(V, Fn) ->
     throw({bad_match, "could not prepare value", V, "for", Fn}).
 
-%% instance Functor
 
 fmap(_Fn, {error, V}) ->
     {error, V};

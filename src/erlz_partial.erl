@@ -1,13 +1,9 @@
--module('erlz_partial').
+-module(erlz_partial).
 
-%% API exports
--export([
-    partial/2
-]).
+-export([partial/2]).
 
-%%====================================================================
-%% API functions
-%%====================================================================
+
+%%% Module API
 
 -spec partial(function(), list()) -> function().
 partial(Fn, InArgs) ->
@@ -16,9 +12,8 @@ partial(Fn, InArgs) ->
     PartialArity = Arity - length(AppArgs),
     make_lamda(PartialArity, InArgs, Fn).
 
-%%====================================================================
-%% Internal functions
-%%====================================================================
+
+%%% Inner functions
 
 -spec make_lamda(non_neg_integer(), list(), function()) -> function().
 make_lamda(0, AppArgs, Fn) ->

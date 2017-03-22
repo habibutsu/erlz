@@ -85,22 +85,27 @@ either_foldrM(Fn, Acc, Xs) ->
     i_foldM(erlz_monad_either, fun lists:foldr/3, Fn, Acc, Xs).
 
 
+-spec error_do([fun_ok_or_error()]) -> ok_or_error().
 error_do([Fn|Fns]) ->
     i_error_do(Fn(), Fns).
 
 
+-spec error_do(any(), [fun_ok_or_error()]) -> ok_or_error().
 error_do(InitValue, Fns) ->
     i_error_do(erlz_monad_error:return(InitValue), Fns).
 
 
+-spec error_traverse(fun_ok_or_error(), list()) -> ok_or_error().
 error_traverse(Fn, Items) when is_list(Items) ->
     i_list_traverse(erlz_monad_error, Fn, Items).
 
 
+-spec error_foldlM(function(), any(), [ok_or_error()]) -> ok_or_error().
 error_foldlM(Fn, Acc, Xs) ->
     i_foldM(erlz_monad_error, fun lists:foldl/3, Fn, Acc, Xs).
 
 
+-spec error_foldrM(function(), any(), [ok_or_error()]) -> ok_or_error().
 error_foldrM(Fn, Acc, Xs) ->
     i_foldM(erlz_monad_error, fun lists:foldr/3, Fn, Acc, Xs).
 
@@ -158,9 +163,11 @@ i_maybe_do(InitValue, Fns) ->
     i_do(InitValue, fun erlz_monad_maybe:'>>='/2, Fns).
 
 
+-spec i_either_do(either(), [fun_either()]) -> either().
 i_either_do(InitValue, Fns) ->
     i_do(InitValue, fun erlz_monad_either:'>>='/2, Fns).
 
 
+-spec i_error_do(ok_or_error(), [fun_ok_or_error()]) -> ok_or_error().
 i_error_do(InitValue, Fns) ->
     i_do(InitValue, fun erlz_monad_error:'>>='/2, Fns).

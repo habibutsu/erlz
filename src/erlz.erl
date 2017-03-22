@@ -57,7 +57,7 @@ maybe_foldlM(Fn, Acc, Xs) ->
 
 -spec maybe_foldrM(function(), any(), [maybe()]) -> maybe().
 maybe_foldrM(Fn, Acc, Xs) ->
-    i_foldM(erlz_monad_error, fun lists:foldr/3, Fn, Acc, Xs).
+    i_foldM(erlz_monad_maybe, fun lists:foldr/3, Fn, Acc, Xs).
 
 
 either_do([Fn|Fns]) ->
@@ -126,7 +126,8 @@ i_list_traverse(Monad, Fn, Items) when is_list(Items) ->
             Monad:'>>='(Acc,
                 fun(Ys) ->
                     Monad:fmap(
-                        fun(Y)-> Ys ++ [Y] end,
+                        fun(Y)->
+                            Ys ++ [Y] end,
                         Fn(X))
                 end)
         end,

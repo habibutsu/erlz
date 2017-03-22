@@ -1,9 +1,5 @@
 -module(erlz_tests).
-
 -include_lib("eunit/include/eunit.hrl").
-
--compile([export_all]).
-
 
 partial1_test() ->
     Formatter = erlz:partial(fun erlang:float_to_binary/2, ['_', [{decimals, 4}, compact]]),

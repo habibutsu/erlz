@@ -30,9 +30,9 @@ fail(_V) -> nothing.
 -spec '>>='(maybe(), fun_maybe()) -> maybe().
 '>>='({just, V}, Fn)    -> Fn(V);
 '>>='(nothing, _)       -> nothing;
-'>>='(V, Fn)            -> throw({bad_match, "could not prepare value", V, "for", Fn}).
+'>>='(V, _Fn)            -> throw({bad_value, V}).
 
 
--spec fmap(fun_maybe(), maybe()) -> maybe().
+-spec fmap(function(), maybe()) -> maybe().
 fmap(_Fn, nothing)  -> nothing;
 fmap(Fn, {just, V}) -> {just, Fn(V)}.

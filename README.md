@@ -77,6 +77,19 @@ Fns = [
 ?assertEqual({error, "very small"}, erlz:error_do(1, Fns)),
 ```
 
+Example from real project:
+```erlang
+handle_notification(Obj) ->
+    erlz:error_do(Obj, [
+        fun validate_expiration_date/1,
+        fun validate_content/1,
+        fun validate_links/1,
+        fun compose_message/1,
+        fun check_is_canceled/1,
+        fun send_notification/1
+    ]).
+```
+
 ## Traversable
 
 Map list of simple values over a monadic function to get monadic result.

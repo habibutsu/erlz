@@ -1,136 +1,129 @@
 # Overview
 
-Set of helpers functions for more convenient functional programming on Erlang
-
-Provide following ability:
+Set of helpers functions for advanced functional programming on Erlang:
 
 * currying
-* partial applications
-* simplest monadic computation
+* partial application
+* monadic computation
 
-## Examples
 
-### Currying
-
-```erlang
-Fn = fun(A, B, C, D) ->
-    A + B + C + D
-end,
-CFn = erlz:curried(Fn),
-10 = (((CFn(1))(2))(3))(4).
-```
-
-### Partial application
+## Currying
 
 ```erlang
-Fn = fun(A, B, C, D, E) ->
-    1 = A,
-    2 = B,
-    3 = C,
-    4 = D,
-    5 = E,
-    A + B + C + D + E
-end,
-% Atom '_' is used for specifying place where value must be substituted
-PFn = erlz:partial(Fn, [1, '_', '_', 4, 5]),
-{arity, 2} = erlang:fun_info(PFn, arity),
-15 = PFn(2, 3).
+Wrapper = erlz:curried(fun(Prefix, Suffix, Str) -> Prefix ++ Str ++ Suffix end),
+ParenWrapper = (Wrapper("{"))("}"),
+?assertEqual("{Hello}", ParenWrapper("Hello")),
 
-[3,7,1,5] = lists:map(
-    erlz:partial(fun lists:nth/2, [3]),
-    [
-        [1,2,3,4],
-        [5,6,7,8],
-        [9,0,1,2],
-        [3,4,5,6]
-    ]).
+CommentOpen = Wrapper("/* "),
+CommentWrapper = CommentOpen(" */"),
+?assertEqual("/* Hello */", CommentWrapper("Hello")),
 ```
 
-### do-notation
+## Partial application
 
 ```erlang
-<<"16.0">> = erlz:do(0, [
-    fun(X) -> X+1 end,
-    fun(X) -> X+3 end,
-    % using currying
-    (erlz:curried(fun math:pow/2))(2),
-    erlz:partial(
-        fun erlang:float_to_binary/2,
-        ['_', [{decimals, 4}, compact]])
-]).
+Formatter = erlz:partial(fun erlang:float_to_binary/2, ['_', [{decimals, 4}, compact]]),
+?assertEqual(<<"16.0">>, Formatter(16.0)),
+?assertEqual(<<"3.1416">>, Formatter(3.1415926)),
 
-{left,{stop,1}} = erlz:either_do(0, [
-    fun(X) -> {right, X+1} end,
-    fun(X) -> {left, {stop, X}} end,
-    fun(X) -> {right, X+100} end
-]).
-
-{ok, [1,2,3]} = erlz:error_do([
-    fun() -> {ok, []} end,
-    fun([] = State) -> {ok, State ++ [1]} end,
-    fun([1] = State) -> {ok, State ++ [2]} end,
-    fun([1,2] = State) -> {ok, State ++ [3]} end
-]).
-
-{error, "reason"} = erlz:error_do([
-    fun() -> {ok, []} end,
-    fun([] = State) -> {ok, State ++ [1]} end,
-    fun([1] = State) -> {error, "reason"} end,
-    fun([1,2] = State) -> {ok, State ++ [3]} end
-]).
+Wrapper = fun(Prefix, Suffix, Str) -> Prefix ++ Str ++ Suffix end,
+HelloWrapper = erlz:partial(Wrapper, ['_', '_', "Hello"]),
+?assertEqual("{Hello}", HelloWrapper("{", "}")),
+?assertEqual("/* Hello */", HelloWrapper("/* ", " */")),
 ```
 
-### Traversable
+Atom '_' specifies a place for substituted value.
 
-Example of traverse on Erlang
 
+## do-notation
+
+Simple functions pipeline:
+```error
+Res = erlz:do("  hello there!  ", [
+    fun string:strip/1,
+    fun string:to_upper/1,
+    erlz:partial(fun string:tokens/2, ['_', " "]),
+    fun hd/1
+]),
+?assertEqual("HELLO", Res),
+```
+
+Pipeline with monad Maybe:
+```error
+Fns = [
+    fun(V) -> {just, integer_to_binary(V)} end,
+    fun
+        (Bin) when byte_size(Bin) < 2 -> nothing;
+        (Bin) -> {just, Bin}
+    end,
+    fun(Bin) -> {just, <<"The answer is ", Bin/binary>>} end
+],
+?assertEqual({just, <<"The answer is 42">>}, erlz:maybe_do(42, Fns)),
+?assertEqual(nothing, erlz:maybe_do(1, Fns)),
+```
+
+Pipeline with monad Error:
+```error
+Fns = [
+    fun(V) -> {ok, integer_to_binary(V)} end,
+    fun
+        (Bin) when byte_size(Bin) < 2 -> {error, "very small"};
+        (Bin) -> {ok, Bin}
+    end,
+    fun(Bin) -> {ok, <<"The answer is ", Bin/binary>>} end
+],
+?assertEqual({ok, <<"The answer is 42">>}, erlz:error_do(42, Fns)),
+?assertEqual({error, "very small"}, erlz:error_do(1, Fns)),
+```
+
+## Traversable
+
+Map list of simple values over a monadic function to get monadic result.
+
+Monad Maybe example:
 ```erlang
-Fn = fun(Item) ->
-    case Item > 5 of
-        true -> {left, "Contains value greater than 5"};
-        _ -> {right, Item * 2}
-    end
-end,
-
-{left,"Contains value greater than 5"} = erlz:either_traverse(Fn, [6,1,2,3,4]).
-
-{right,[2,4,6,8]} = erlz:either_traverse(Fn, [1,2,3,4]).
+Fn = fun
+         (V) when V < 5 -> {just, V * 2};
+         (_) -> nothing
+     end,
+?assertEqual({just, [2,4,6,8]}, erlz:maybe_traverse(Fn, [1,2,3,4])),
+?assertEqual(nothing, erlz:maybe_traverse(Fn, [1,2,6,3,4])),
 ```
 
-A similar example that above but on Haskell
-
-```haskell
-> (traverse 
-    (\x -> if x > 5 then Left ("Contains value greater than 5") else Right (x * 2))
-    [6, 1..5])
-Left "Contains value greater than 5"
-
-
-> (traverse 
-    (\x -> if x > 5 then Left ("Contains value greater than 5") else Right (x * 2))
-    [1..5])
-Right [2,4,6,8,10]
-```
-
-### foldM
-
-Simple example
-
+Monad Either example:
 ```erlang
-Fn = fun(X, Sum) ->
-    case X > 5 of
-        true -> {left, "Contains value greater than 5"};
-        _ -> {right, Sum + X}
-    end
-end,
-{right,3} = erlz:either_foldlM(Fn, 0, [1,1,1]),
-{left,"Contains value greater than 5"} = erlz:either_foldlM(Fn, 0, [6,1,1]).
+Fn = fun
+         (V) when V < 5 -> {right, V * 2};
+         (_) -> {left, "more than 5"}
+    end,
+?assertEqual({right, [2,4,6,8]}, erlz:either_traverse(Fn, [1,2,3,4])),
+?assertEqual({left, "more than 5"}, erlz:either_traverse(Fn, [1,2,6,3,4])),
 ```
-and analogue on Haskell
 
-```haskell
-> let f = (\acc x -> if x > 5 then Left ("Contains value greater than 5") else Right (acc + x)) in foldlM f 0 [1,1,1]
-Right 3
-> let f = (\acc x -> if x > 5 then Left ("Contains value greater than 5") else Right (acc + x)) in foldlM f 0 [6,1,1]
-Left "Contains value greater than 5"
+## foldM
+
+Fold list of monadic values over simple function to get monadic result.
+
+Monad Maybe example:
+```erlang
+Fn = fun
+         (Char, Str) when Char > $Z -> {just, [Char | Str]};
+         (_, _) -> nothing
+     end,
+?assertEqual({just, "dcba"}, erlz:maybe_foldlM(Fn, "", "abcd")),
+?assertEqual({just, "abcd"}, erlz:maybe_foldrM(Fn, "", "abcd")),
+?assertEqual(nothing, erlz:maybe_foldlM(Fn, "", "aBc")),
+?assertEqual(nothing, erlz:maybe_foldrM(Fn, "", "abC")),
+```
+
+Monad Error example:
+```erlang
+Fn = fun
+         (Char, Str) when Char > $Z -> {ok, [Char | Str]};
+         (_, _) -> {error, "uppercase char"}
+     end,
+?assertEqual({ok, "dcba"}, erlz:error_foldlM(Fn, "", "abcd")),
+?assertEqual({ok, "abcd"}, erlz:error_foldrM(Fn, "", "abcd")),
+?assertEqual({error, "uppercase char"}, erlz:error_foldlM(Fn, "", "aBc")),
+?assertEqual({error, "uppercase char"}, erlz:error_foldrM(Fn, "", "abC")),
 ```

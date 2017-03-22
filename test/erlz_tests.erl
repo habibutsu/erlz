@@ -66,6 +66,7 @@ carried2_test() ->
     Wrapper = erlz:curried(fun(Prefix, Suffix, Str) -> Prefix ++ Str ++ Suffix end),
     ParenWrapper = (Wrapper("{"))("}"),
     ?assertEqual("{Hello}", ParenWrapper("Hello")),
+
     CommentOpen = Wrapper("/* "),
     CommentWrapper = CommentOpen(" */"),
     ?assertEqual("/* Hello */", CommentWrapper("Hello")),
@@ -96,14 +97,13 @@ do1_test() ->
 
 
 do2_test() ->
-    ?assertEqual("HELLO",
-        erlz:do("  hello there!  ", [
-            fun string:strip/1,
-            fun string:to_upper/1,
-            erlz:partial(fun string:tokens/2, ['_', " "]),
-            fun hd/1
-        ])
-    ),
+    Res = erlz:do("  hello there!  ", [
+        fun string:strip/1,
+        fun string:to_upper/1,
+        erlz:partial(fun string:tokens/2, ['_', " "]),
+        fun hd/1
+    ]),
+    ?assertEqual("HELLO", Res),
     ok.
 
 

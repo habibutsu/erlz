@@ -1,8 +1,9 @@
--module('erlz_tests').
+-module(erlz_tests).
 
 -include_lib("eunit/include/eunit.hrl").
 
 -compile([export_all]).
+
 
 partial_test() ->
     Fn = fun(A, B, C, D, E) ->
@@ -13,19 +14,21 @@ partial_test() ->
         5 = E,
         A + B + C + D + E
     end,
-    PFn = erlz:partial(Fn, [1, '_', '_', 4, 5]),
-    {arity, 2} = erlang:fun_info(PFn, arity),
-    15 = PFn(2, 3),
 
-    PFns = erlz:partial([
-            {Fn, [1, '_', '_', 4, 5]},
-            {Fn, [1, '_', '_', 4, 5]}
-        ]),
-    lists:foreach(
-        fun(InFn) ->
-            15 = InFn(2, 3)
-        end,
-        PFns).
+    PF1 = erlz:partial(Fn, [1, '_', '_', 4, 5]),
+    ?assertEqual({arity, 2}, erlang:fun_info(PF1, arity)),
+    ?assertEqual(15, PF1(2, 3)),
+
+    PF2 = erlz:partial(Fn, [1, '_', 3, '_', '_']),
+    ?assertEqual({arity, 3}, erlang:fun_info(PF2, arity)),
+    ?assertEqual(15, PF2(2, 4, 5)),
+
+    PF3 = erlz:partial(Fn, [1, 2, 3, '_', 5]),
+    ?assertEqual({arity, 1}, erlang:fun_info(PF3, arity)),
+    ?assertEqual(15, PF3(4)),
+
+    ok.
+
 
 carried_test() ->
     Fn = fun(A, B, C, D) ->
@@ -39,6 +42,7 @@ carried_test() ->
     10 = F3(4),
     ok.
 
+
 do_test() ->
     <<"16.0">> = erlz:do(0, [
         fun(X) -> X + 1 end,
@@ -46,6 +50,7 @@ do_test() ->
         (erlz:curried(fun math:pow/2))(2),
         erlz:partial(fun erlang:float_to_binary/2, ['_', [{decimals, 4}, compact]])
     ]).
+
 
 monad_laws_test() ->
     lists:foreach(fun(MM) ->
@@ -78,6 +83,7 @@ either_do_test() ->
         fun(X) -> {right, X+100} end
     ]).
 
+
 either_foldM_test() ->
     Fn = fun(X, Sum) ->
         case X > 5 of
@@ -93,6 +99,7 @@ either_foldM_test() ->
         0, [1,1,1]),
     ok.
 
+
 error_do_test() ->
     io:format("error_do_test~n"),
     {ok, [1,2,3]} = erlz:error_do([
@@ -106,6 +113,7 @@ error_do_test() ->
         fun([1] = _State) -> {error, "reason"} end,
         fun([1,2] = State) -> {ok, State ++ [3]} end
     ]).
+
 
 error_traverse_test() ->
     Fn = fun(Item) ->

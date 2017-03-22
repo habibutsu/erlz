@@ -22,14 +22,15 @@ CommentWrapper = CommentOpen(" */"),
 ## Partial application
 
 ```erlang
-Formatter = erlz:partial(fun erlang:float_to_binary/2, ['_', [{decimals, 4}, compact]]),
-?assertEqual(<<"16.0">>, Formatter(16.0)),
-?assertEqual(<<"3.1416">>, Formatter(3.1415926)),
-
 Wrapper = fun(Prefix, Suffix, Str) -> Prefix ++ Str ++ Suffix end,
 HelloWrapper = erlz:partial(Wrapper, ['_', '_', "Hello"]),
 ?assertEqual("{Hello}", HelloWrapper("{", "}")),
 ?assertEqual("/* Hello */", HelloWrapper("/* ", " */")),
+
+Options = [{decimals, 4}, compact],
+Formatter = erlz:partial(fun erlang:float_to_binary/2, ['_', Options]),
+?assertEqual(<<"16.0">>, Formatter(16.0)),
+?assertEqual(<<"3.1416">>, Formatter(3.1415926)),
 ```
 
 Atom '_' specifies a place for substituted value.

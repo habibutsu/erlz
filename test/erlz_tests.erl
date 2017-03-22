@@ -2,7 +2,8 @@
 -include_lib("eunit/include/eunit.hrl").
 
 partial1_test() ->
-    Formatter = erlz:partial(fun erlang:float_to_binary/2, ['_', [{decimals, 4}, compact]]),
+    Options = [{decimals, 4}, compact],
+    Formatter = erlz:partial(fun erlang:float_to_binary/2, ['_', Options]),
     ?assertEqual(<<"16.0">>, Formatter(16.0)),
     ?assertEqual(<<"3.1416">>, Formatter(3.1415926)),
     ok.

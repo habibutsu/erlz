@@ -60,22 +60,27 @@ maybe_foldrM(Fn, Acc, Xs) ->
     i_foldM(erlz_monad_maybe, fun lists:foldr/3, Fn, Acc, Xs).
 
 
+-spec either_do([fun_either()]) -> either().
 either_do([Fn|Fns]) ->
     i_either_do(Fn(), Fns).
 
 
+-spec either_do(any(), [fun_either()]) -> either().
 either_do(InitValue, Fns) ->
     i_either_do(erlz_monad_either:return(InitValue), Fns).
 
 
+-spec either_traverse(fun_either(), list()) -> either().
 either_traverse(Fn, Items) when is_list(Items) ->
     i_list_traverse(erlz_monad_either, Fn, Items).
 
 
+-spec either_foldlM(function(), any(), [either()]) -> either().
 either_foldlM(Fn, Acc, Xs) ->
     i_foldM(erlz_monad_either, fun lists:foldl/3, Fn, Acc, Xs).
 
 
+-spec either_foldrM(function(), any(), [either()]) -> either().
 either_foldrM(Fn, Acc, Xs) ->
     i_foldM(erlz_monad_either, fun lists:foldr/3, Fn, Acc, Xs).
 

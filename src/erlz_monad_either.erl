@@ -18,13 +18,16 @@
 -export([return/1, '>>='/2, fmap/2]).
 
 
+-spec return(any()) -> either().
 return(V) -> {right, V}.
 
 
+-spec '>>='(either(), fun_either()) -> either().
 '>>='({left, V}, _Fn) -> {left, V};
 '>>='({right, V}, Fn) -> Fn(V);
-'>>='(V, Fn) -> throw({bad_match, "could not prepare value", V, "for", Fn}).
+'>>='(V, _Fn) -> throw({bad_value, V}).
 
 
+-spec fmap(function(), either()) -> either().
 fmap(_Fn, {left, V}) -> {left, V};
 fmap(Fn, {right, V}) -> {right, Fn(V)}.

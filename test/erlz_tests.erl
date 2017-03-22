@@ -31,15 +31,28 @@ partial_test() ->
 
 
 carried_test() ->
+    Plus = erlz:curried(fun(Adder, Value) -> Value + Adder end),
+    Plus5 = Plus(5),
+    ?assertEqual(10, Plus5(5)),
+    ?assertEqual(20, Plus5(15)),
+    Plus100 = Plus(100),
+    ?assertEqual(105, Plus100(5)),
+    ?assertEqual(115, Plus100(15)),
+
+    Wrapper = erlz:curried(fun(Prefix, Suffix, Str) -> Prefix ++ Str ++ Suffix end),
+    ParenWrapper = (Wrapper("{"))("}"),
+    ?assertEqual("{Hello}", ParenWrapper("Hello")),
+    CommentOpen = Wrapper("/* "),
+    CommentWrapper = CommentOpen(" */"),
+    ?assertEqual("/* Hello */", CommentWrapper("Hello")),
+
     Fn = fun(A, B, C, D) ->
         A + B + C + D
     end,
     CFn = erlz:curried(Fn),
-    10 = (((CFn(1))(2))(3))(4),
-    F1 = CFn(1),
-    F2 = F1(2),
-    F3 = F2(3),
-    10 = F3(4),
+    ?assertEqual(10, (((CFn(1))(2))(3))(4)),
+    F1 = CFn(1), F2 = F1(2), F3 = F2(3),
+    ?assertEqual(10, F3(4)),
     ok.
 
 

@@ -97,7 +97,7 @@ end,
 {right,[2,4,6,8]} = erlz:either_traverse(Fn, [1,2,3,4]).
 ```
 
-A similar example that above but on Haskell
+A similar example as above but on Haskell
 
 ```haskell
 > (traverse 

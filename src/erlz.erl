@@ -75,12 +75,12 @@ either_traverse(Fn, Items) when is_list(Items) ->
     i_list_traverse(erlz_monad_either, Fn, Items).
 
 
--spec either_foldlM(function(), any(), [either()]) -> either().
+-spec either_foldlM(function(), any(), list()) -> either().
 either_foldlM(Fn, Acc, Xs) ->
     i_foldM(erlz_monad_either, fun lists:foldl/3, Fn, Acc, Xs).
 
 
--spec either_foldrM(function(), any(), [either()]) -> either().
+-spec either_foldrM(function(), any(), list()) -> either().
 either_foldrM(Fn, Acc, Xs) ->
     i_foldM(erlz_monad_either, fun lists:foldr/3, Fn, Acc, Xs).
 

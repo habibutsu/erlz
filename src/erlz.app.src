@@ -1,6 +1,6 @@
 {application, erlz, [
     {description, "Functional programming for erlang"},
-    {vsn, "0.9.0"},
+    {vsn, "0.9.1"},
     {registered, []},
     {applications, [
         kernel,
